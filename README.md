@@ -1,0 +1,15 @@
+# ModToolsAutogen mod for Captain of Industry
+
+This is a mod for Captain of Industry (COI) that aims to improve moding by allowing access to several internal helpers used for auto-generating assets.
+
+## How to compile
+
+A normal Visual Studio solution and .csproj file are provided.
+
+1. Before you can compile the mod, you need to provide the path of your COI installation directory. You can get this path from the Steam client via `Properties...` -> `Local Files` -> `Browse` (a typical install path might be `C:\Program Files (x86)\Steam\steamapps\common\Captain of Industry`).
+2. Make a copy of the file `Options.user.example` in your clone and rename the copy to `Options.user`.
+3. Open `Options.user` in a text editor and change the path to match your system.
+4. You should now be able to build the solution.
+
+In `Options.user` you can also configure some more build options.
+If `CopyToModDirectory` is set to the default of `true`, the build output will be automatically copied to the COI mod directory in app data.

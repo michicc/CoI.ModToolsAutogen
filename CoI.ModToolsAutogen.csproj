@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Options.user" Condition="Exists('Options.user')" />
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <Configurations>Debug;Release</Configurations>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AccelerateBuildsInVisualStudio>false</AccelerateBuildsInVisualStudio>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Options.user" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Source\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="AssetBundles\**" Exclude="AssetBundles\**\*.manifest;AssetBundles\AssetBundles;**\.gitignore" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="AssetBundles\mafi_bundles.manifest" CopyToOutputDirectory="PreserveNewest" Condition="Exists('AssetBundles\mafi_bundles.manifest')"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <GameAssembly Include="Mafi" />
+    <GameAssembly Include="Mafi.Core" />
+    <GameAssembly Include="Mafi.Base" />
+    <GameAssembly Include="Mafi.Unity" />
+  </ItemGroup>
+
+  <!-- Scaffolding for referencing game data/DLLs. -->
+  <PropertyGroup>
+    <!-- Locate game DLL directory. -->
+    <GameDir Condition="'$(GameDir)' == ''">$(COI_ROOT)</GameDir>
+    <GameManagedDir Condition="'$(GameManagedDir)' == ''">$(GameDir)\Captain of Industry_Data\Managed</GameManagedDir>
+    <ModFolderName Condition="'$(ModFolderName)' == ''">$(AssemblyName)</ModFolderName>
+    <GameModDir Condition="'$(GameModDir)' == ''">$(AppData)\Captain of Industry\Mods\$(AssemblyName)\</GameModDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="@(GameAssembly)">
+      <HintPath Condition="Exists('$(GameManagedDir)\%(Identity).dll')">$(GameManagedDir)\%(Identity).dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Create nice error message if a valid install dir was not provided. -->
+  <Target Name="CheckGameDir" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <_InvalidGameDir Condition="!Exists('$(GameManagedDir)')">true</_InvalidGameDir>
+    </PropertyGroup>
+    <Error Text="No valid Captain of Industry installation directory set. Modify Paths.user or set COI_ROOT environment variable properly." ContinueOnError="false" Condition="'$(_InvalidGameDir)' == 'true'" />
+  </Target>
+
+  <!-- Collect all output files relative to the OutputPath. -->
+  <Target Name="CollectCopyToModDir" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <_CopyToModDirFiles Include="$(OutputPath)\**\*" />
+      <_CopyToModDirFilesDest Include="@(_CopyToModDirFiles-&gt;Replace('$(OutputPath)', '$(GameModDir)'))" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Copy mod output to game dir if requested. -->
+  <Target Name="CopyToModDir" Inputs="@(_CopyToModDirFiles)" Outputs="@(_CopyToModDirFilesDest)" AfterTargets="AfterBuild" DependsOnTargets="CollectCopyToModDir" Condition="'$(Configuration)' == 'Debug' And '$(CopyToModDirectory)' == 'true'">
+    <Message Text="Copying mod to game dir -&gt; $(GameModDir)" Importance="high" />
+
+    <Copy SourceFiles="@(_CopyToModDirFiles)" DestinationFiles="@(_CopyToModDirFilesDest)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Delete mod files from game dir on Clean. -->
+  <Target Name="CustomClean" BeforeTargets="CoreClean" Condition="'$(Configuration)' == 'Debug' And '$(CopyToModDirectory)' == 'true'">
+    <Message Text="Cleaning mod from game dir" Importance="high" />
+
+    <ItemGroup>
+      <_CustomFilesToDelete Include="$(GameModDir)**\*" />
+    </ItemGroup>
+    <Delete Files="@(_CustomFilesToDelete)" />
+  </Target>
+</Project>
+ 
