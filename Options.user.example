@@ -2,5 +2,6 @@
   <PropertyGroup>
     <GameDir>C:\Program Files (x86)\Steam\steamapps\common\Captain of Industry</GameDir>
     <CopyToModDirectory>true</CopyToModDirectory>
+    <BuildZipOnRelease>true</BuildZipOnRelease>
   </PropertyGroup>
 </Project>

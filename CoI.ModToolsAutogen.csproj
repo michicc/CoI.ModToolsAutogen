@@ -10,8 +10,7 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AccelerateBuildsInVisualStudio>false</AccelerateBuildsInVisualStudio>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +23,7 @@
 
   <ItemGroup>
     <Content Include="AssetBundles\**" Exclude="AssetBundles\**\*.manifest;AssetBundles\AssetBundles;**\.gitignore" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="AssetBundles\mafi_bundles.manifest" CopyToOutputDirectory="PreserveNewest" Condition="Exists('AssetBundles\mafi_bundles.manifest')"/>
+    <Content Include="AssetBundles\mafi_bundles.manifest" CopyToOutputDirectory="PreserveNewest" Condition="Exists('AssetBundles\mafi_bundles.manifest')" />
   </ItemGroup>
 
   <ItemGroup>
@@ -84,5 +83,47 @@
     </ItemGroup>
     <Delete Files="@(_CustomFilesToDelete)" />
   </Target>
+
+  <!-- Collect all output files relative to the OutputPath. -->
+  <Target Name="CollectZipContents" AfterTargets="AfterBuild">
+    <PropertyGroup>
+      <ModPublishPath Condition="'$(ModPublishPath)' == ''">$(MSBuildProjectDirectory)\$(BaseOutputPath)</ModPublishPath>
+      <_ZipName>$(ModPublishPath)$(ModFolderName)_$(Version).zip</_ZipName>
+      <_ZipStagingDir>$(ModPublishPath)Stage\</_ZipStagingDir>
+      <_ZipModDir>$(_ZipStagingDir)$(ModFolderName)\</_ZipModDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_CopyToPublishDirFiles Include="$(OutputPath)\**\*" />
+      <_CopyToPublishDirFilesDest Include="@(_CopyToPublishDirFiles-&gt;Replace('$(OutputPath)', '$(_ZipModDir)'))" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Package the mod into a neat zip -->
+  <Target Name="PrepareForPublishing" Inputs="@(_CopyToPublishDirFiles)" Outputs="$(_ZipName)" AfterTargets="AfterBuild" DependsOnTargets="CollectZipContents" Condition="'$(Configuration)' == 'Release' AND '$(BuildZipOnRelease)' == 'true'">
+    <Message Text="Publishing mod to -&gt; $(_ZipName)" Importance="high" />
+
+    <!-- Assure the output path exists -->
+    <MakeDir Directories="$(_ZipModDir)" />
+
+    <Copy SourceFiles="@(_CopyToPublishDirFiles)" DestinationFiles="@(_CopyToPublishDirFilesDest)" SkipUnchangedFiles="true" />
+    <ZipDirectory SourceDirectory="$(_ZipStagingDir)" DestinationFile="$(_ZipName)" Overwrite="true" />
+
+    <!-- Clean up -->
+    <RemoveDir Directories="$(_ZipStagingDir)" />
+  </Target>
+
+  <!-- Delete zip files from publish dir on Clean. -->
+  <Target Name="CustomCleanZip" BeforeTargets="CoreClean" Condition="'$(Configuration)' == 'Release' And '$(BuildZipOnRelease)' == 'true'">
+    <PropertyGroup>
+      <ModPublishPath Condition="'$(ModPublishPath)' == ''">$(MSBuildProjectDirectory)\$(BaseOutputPath)</ModPublishPath>
+    </PropertyGroup>
+
+    <Message Text="Cleaning published zips" Importance="high" />
+
+    <ItemGroup>
+      <_OldZips Include="$(ModPublishPath)\$(ModFolderName)_*.zip" />
+    </ItemGroup>
+    <Delete Files="@(_OldZips)" />
+  </Target>
 </Project>
- 
