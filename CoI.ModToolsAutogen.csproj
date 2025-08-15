@@ -32,6 +32,8 @@
     <GameAssembly Include="Mafi.Core" />
     <GameAssembly Include="Mafi.Base" />
     <GameAssembly Include="Mafi.Unity" />
+    <GameAssembly Include="UnityEngine.CoreModule" />
+    <GameAssembly Include="UnityEngine.AnimationModule" />
   </ItemGroup>
 
   <!-- Scaffolding for referencing game data/DLLs. -->

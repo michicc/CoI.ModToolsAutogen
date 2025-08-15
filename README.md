@@ -2,6 +2,18 @@
 
 This is a mod for Captain of Industry (COI) that aims to improve moding by allowing access to several internal helpers used for auto-generating assets.
 
+It provides several in-game console commands listed below.
+
+## How to use
+
+The following commands are implemented. Arguments in <> are optional.
+
+- `generate_layout_entity_icons <idSubstring> <pitchDegrees> <yawDegrees> <fovDegrees>`: Generate layout entity icons shown in the build menu or research tree. Works similar to `generate_layout_entity_mesh_templates`.
+	- `idSubstring`: If set, icons will only be generated for entities with a matching proto if. If empty, all icons will be generated.
+	- `pitchDegrees`: Camera pitch. Default values is 35°.
+	- `yawDegrees`: Camera yaw. Default values is 120° unless the Proto has `YawForGeneratedIcon` set.
+	- `fovDegrees`: Camera field-of-view. Default values is 20°.
+
 ## How to compile
 
 A normal Visual Studio solution and .csproj file are provided.
