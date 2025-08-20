@@ -57,6 +57,14 @@ internal class IconGenerator
                     renderer.SetCamera(pith, layoutEntityProto.Graphics.YawForGeneratedIcon ?? yaw, fov);
 
                     GameObject entityGo = m_modelFactory.CreateModelWithPortsFor(layoutEntityProto);
+
+                    // The GameObjectRenderer produces a graphical artifact of unknown origin. The visible artifact gets
+                    // smaller when the object gets larger. As such, just scale the object up so the artifact becomes smaller
+                    // than a pixel and it becomes invisible. Limit scaling factor to avoid any possible weirdness.
+                    var bounds = GetBoundingBox(entityGo);
+                    float scaleFactor = bounds.HasValue ? Math.Min(Math.Max(1.0f, 500.0f / bounds.Value.size.x), 100.0f) : 10.0f;
+                    entityGo.transform.localScale = entityGo.transform.localScale * scaleFactor;
+
                     if (layoutEntityProto.Graphics.Color.IsNotEmpty) {
                         m_colorizableMaterialsCache.SetColorOfAllColorizableMaterials(entityGo, layoutEntityProto.Graphics.Color.ToColor());
                     }
@@ -105,12 +113,35 @@ internal class IconGenerator
             outline.transform.SetParent(go.transform, worldPositionStays: false);
             outline.transform.localPosition = Vector3.zero;
             outline.transform.localRotation = Quaternion.identity;
+            outline.transform.localScale = Vector3.one;
             outline.SetActive(value: true);
         }
         foreach (int item in renderer.RenderToPngSelfCentering(go, path)) {
             yield return item;
         }
         outline?.DestroyImmediateIfNotNull();
+    }
+
+    private static Bounds? GetBoundingBox(GameObject go)
+    {
+        var componentsInChildren = go.GetComponentsInChildren<Renderer>();
+        if (componentsInChildren.Length == 0) return null;
+
+        bool valid = false;
+        Bounds result = default;
+        foreach (var c in componentsInChildren) {
+            var bounds = c.bounds;
+            if (bounds.center.IsFinite() && bounds.size.IsFinite()) {
+                if (valid) {
+                    result.Encapsulate(bounds);
+                } else {
+                    result = bounds;
+                    valid = true;
+                }
+            }
+        }
+
+        return valid ? result : null;
     }
 
     private static readonly int OFFSET_PERCENT_SHADER_ID = Shader.PropertyToID("_OffsetPercent");
