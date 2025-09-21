@@ -1,6 +1,9 @@
 ﻿using Mafi;
 using Mafi.Core.Console;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace CoI.ModToolsAutogen;
 
@@ -26,5 +29,33 @@ internal class ConsoleCommands
             Log.Exception(ex, "Failed to generate entity icon.");
             return GameCommandResult.Error($"Failed: {ex}", false);
         }
+    }
+
+    [ConsoleCommand(true, false, null, null)]
+    internal GameCommandResult generateLayoutEntityAnimationTexture(string? idSubstring = null)
+    {
+        try {
+            // Instantiate an object of type 'Mafi.Unity.TexturesGenerators.AnimationTexturesGenerator'.
+            var type = GetTypeFromAssembly("Mafi.Unity", "Mafi.Unity.TexturesGenerators.AnimationTexturesGenerator");
+            var generator = ((DependencyResolver)m_resolver).Instantiate(type);
+
+            // Set properties of generator.
+            type.GetProperty("NameSubstr").SetValue(generator, Option.Create(idSubstring));
+
+            // Run generator.
+            string basePath = System.IO.Path.Combine(Environment.CurrentDirectory, "GeneratedAnimationTextures");
+            var genAsync = (IEnumerable<string>)type.GetMethod("GenerateLayoutEntities").Invoke(generator, [basePath]);
+            var outs = genAsync.Where(x => !string.IsNullOrEmpty(x)).ToList(); // Run async method.
+
+            return GameCommandResult.Success(string.Format("Generated {0} animation textures, look in '{1}' directory.", outs.Count, basePath), false);
+        } catch (Exception ex) {
+            return GameCommandResult.Error($"Failed: {ex}", false);
+        }
+    }
+
+    private static Type GetTypeFromAssembly(string assembly, string type)
+    {
+        var a = AppDomain.CurrentDomain.GetAssemblies().Where(x => new AssemblyName(x.FullName).Name == assembly).FirstOrDefault();
+        return a?.GetTypes().Where(x => x.FullName == type).FirstOrDefault() ?? throw new TypeLoadException($"Type {type} not found");
     }
 }

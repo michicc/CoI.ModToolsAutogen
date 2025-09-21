@@ -6,7 +6,7 @@ public sealed class ModToolsAutogenMod : DataOnlyMod
 {
     public override string Name => "ModToolsAutogen Mod";
 
-    public override int Version => 3;
+    public override int Version => 4;
 
     public override void RegisterPrototypes(ProtoRegistrator registrator) { }
 }

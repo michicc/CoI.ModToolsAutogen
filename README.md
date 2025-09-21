@@ -9,10 +9,13 @@ It provides several in-game console commands listed below.
 The following commands are implemented. Arguments in <> are optional.
 
 - `generate_layout_entity_icons <idSubstring> <pitchDegrees> <yawDegrees> <fovDegrees>`: Generate layout entity icons shown in the build menu or research tree. Works similar to `generate_layout_entity_mesh_templates`.
-	- `idSubstring`: If set, icons will only be generated for entities with a matching proto if. If empty, all icons will be generated.
+	- `idSubstring`: If set, icons will only be generated for entities with a matching proto id. If empty, all icons will be generated.
 	- `pitchDegrees`: Camera pitch. Default values is 35°.
 	- `yawDegrees`: Camera yaw. Default values is 120° unless the Proto has `YawForGeneratedIcon` set.
 	- `fovDegrees`: Camera field-of-view. Default values is 20°.
+
+- `generate_layout_entity_animation_texture <idSubstring>`: Generate layout entity animation textures for use in semi-instanced rendering. Works similar to `generate_layout_entity_mesh_templates`.
+	- `idSubstring`: If set, icons will only be generated for entities with a matching proto id. If empty, all icons will be generated.
 
 ## How to compile
 
