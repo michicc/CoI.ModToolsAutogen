@@ -43,6 +43,12 @@ internal class IconGenerator
         var rootGo = GameObject.Find("Game") ?? UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects().First();
         var renderer = new GameObjectRenderer(rootGo, 20.0f, m_cameraController.Camera);
 
+        // Certain GameObjects need to be temporarily disabled because they show up in the generated icon.
+        var disabledObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects().Where(x => x.name == "TerrainCircleRenderer" && x.activeSelf == true).ToList();
+        foreach (var go in disabledObjects) {
+            go.SetActive(false);
+        }
+
         renderer.SetUpRendering();
         try {
             renderer.SetImageSize(new Vector2i(256, 256));
@@ -57,13 +63,6 @@ internal class IconGenerator
                     renderer.SetCamera(pith, layoutEntityProto.Graphics.YawForGeneratedIcon ?? yaw, fov);
 
                     GameObject entityGo = m_modelFactory.CreateModelWithPortsFor(layoutEntityProto);
-
-                    // The GameObjectRenderer produces a graphical artifact of unknown origin. The visible artifact gets
-                    // smaller when the object gets larger. As such, just scale the object up so the artifact becomes smaller
-                    // than a pixel and it becomes invisible. Limit scaling factor to avoid any possible weirdness.
-                    var bounds = GetBoundingBox(entityGo);
-                    float scaleFactor = bounds.HasValue ? Math.Min(Math.Max(1.0f, 500.0f / bounds.Value.size.x), 100.0f) : 10.0f;
-                    entityGo.transform.localScale = entityGo.transform.localScale * scaleFactor;
 
                     if (layoutEntityProto.Graphics.Color.IsNotEmpty) {
                         m_colorizableMaterialsCache.SetColorOfAllColorizableMaterials(entityGo, layoutEntityProto.Graphics.Color.ToColor());
@@ -93,6 +92,11 @@ internal class IconGenerator
             return count;
         } finally {
             renderer.TearDownRendering();
+
+            // Restore disabled GameObjects.
+            foreach (var go in disabledObjects) {
+                go.SetActive(true);
+            }
         }
     }
 
@@ -120,28 +124,6 @@ internal class IconGenerator
             yield return item;
         }
         outline?.DestroyImmediateIfNotNull();
-    }
-
-    private static Bounds? GetBoundingBox(GameObject go)
-    {
-        var componentsInChildren = go.GetComponentsInChildren<Renderer>();
-        if (componentsInChildren.Length == 0) return null;
-
-        bool valid = false;
-        Bounds result = default;
-        foreach (var c in componentsInChildren) {
-            var bounds = c.bounds;
-            if (bounds.center.IsFinite() && bounds.size.IsFinite()) {
-                if (valid) {
-                    result.Encapsulate(bounds);
-                } else {
-                    result = bounds;
-                    valid = true;
-                }
-            }
-        }
-
-        return valid ? result : null;
     }
 
     private static readonly int OFFSET_PERCENT_SHADER_ID = Shader.PropertyToID("_OffsetPercent");
