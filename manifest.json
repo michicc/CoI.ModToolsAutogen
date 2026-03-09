@@ -1,0 +1,15 @@
+{
+	"id": "mcc_ModToolsAutogen",
+	"version": "2.1.0",
+	"display_name": "ModToolsAutogen Mod",
+	"authors": [ "michi_cc" ],
+	"description_short": "<b>ModToolsAutogen</b> exposes some mod development support as console commands.",
+	"min_game_version": "0.8",
+	"mod_dependencies": [],
+	"optional_mod_dependencies": [],
+	"incompatible_mods": [],
+	"non_locking_dll_load": true,
+	"can_add_to_saved_game": true,
+	"can_remove_from_saved_game": true,
+	"primary_dlls": [ "CoI.ModToolsAutogen.dll" ]
+}

@@ -4,9 +4,7 @@ namespace CoI.ModToolsAutogen;
 
 public sealed class ModToolsAutogenMod : DataOnlyMod
 {
-    public override string Name => "ModToolsAutogen Mod";
-
-    public override int Version => 4;
+    public ModToolsAutogenMod(ModManifest manifest) : base(manifest) { }
 
     public override void RegisterPrototypes(ProtoRegistrator registrator) { }
 }
