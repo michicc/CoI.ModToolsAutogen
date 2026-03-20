@@ -1,0 +1,107 @@
+<Project>
+  <!-- Version generator -->
+  <UsingTask TaskName="ProcessManifest" TaskFactory="RoslynCodeTaskFactory" AssemblyName="Microsoft.Build.Tasks.Core">
+    <ParameterGroup>
+      <Manifest ParameterType="System.String" Required="true" />
+      <DefaultTitle ParameterType="System.String" Required="true" />
+      <ModId Output="true" ParameterType="System.String" />
+      <NormalizedVersion Output="true" ParameterType="System.String" />
+      <ManifestVersion Output="true" ParameterType="System.String" />
+      <AuthorName Output="true" ParameterType="System.String" />
+      <DisplayTitle Output="true" ParameterType="System.String" />
+    </ParameterGroup>
+
+    <Task>
+      <Reference Include="System.Text.Json" />
+      <Reference Include="System.Memory"/>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.Json" />
+      <Using Namespace="System.Text.RegularExpressions" />
+
+      <Code Type="Fragment" Language="Cs">
+        <![CDATA[
+          // Set default outputs.
+          NormalizedVersion = "0.0.0";
+          AuthorName = "Unknown";
+          DisplayTitle = DefaultTitle;
+          ModId = "";
+
+          JsonDocument doc = null;
+          // Read manifest file.
+          try {
+            doc = JsonDocument.Parse(File.ReadAllText(Manifest));
+          } catch (Exception ex) {
+            Log.LogError("Failed to read version from manifest.json: " + ex.Message);
+
+            return false;
+          }
+          // Extract mod ID.
+          try {
+            ModId = doc.RootElement.GetProperty("id").GetString();
+          } catch (Exception ex) {
+            Log.LogError("Failed to read mod ID from manifest.json: " + ex.Message);
+
+            return false;
+          }
+          // Extract manifest version.
+          try {
+            ManifestVersion = doc.RootElement.GetProperty("version").GetString();
+
+            // Match: major.minor.patch + optional letter
+            var match = Regex.Match(ManifestVersion, @"^(\d+)\.(\d+)(\.(\d+)([a-z]?))?$");
+            if (!match.Success) throw new Exception("Invalid version format: " + ManifestVersion);
+
+            var major = match.Groups[1].Value;
+            var minor = match.Groups[2].Value;
+            var patch = match.Groups[4].Success ? match.Groups[4].Value : "0";
+            var suffix = match.Groups[5].Value;
+
+            // Convert letter to number (a=1, b=2, … z=26)
+            int revision = 0;
+            if (!string.IsNullOrEmpty(suffix)) revision = char.ToLower(suffix[0]) - 'a' + 1;
+
+            NormalizedVersion = string.Join(".", major, minor, patch, revision);
+          } catch (Exception ex) {
+            Log.LogError("Failed to read version from manifest.json: " + ex.Message);
+          }
+          // Try to get author.
+          try {
+            if (doc.RootElement.TryGetProperty("authors", out var authors) && authors.ValueKind == JsonValueKind.Array) {
+              AuthorName = string.Join(", ", authors.EnumerateArray().Select(s => s.GetString()));
+            }
+          } catch (Exception ex) {
+            Log.LogWarning("Failed to read author from manifest.json: " + ex.Message);
+          }
+          // Try to get title.
+          try {
+            if (doc.RootElement.TryGetProperty("display_name", out var displayName)) {
+              DisplayTitle = displayName.GetString();
+            }
+          } catch (Exception ex) {
+            Log.LogWarning("Failed to read display_name from manifest.json: " + ex.Message);
+          }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="ReadJsonVersion" BeforeTargets="GetAssemblyVersion">
+    <ProcessManifest Manifest="manifest.json" DefaultTitle="$(TargetName)">
+      <Output TaskParameter="ModId" PropertyName="ModId" />
+      <Output TaskParameter="NormalizedVersion" PropertyName="VersionNormalized" />
+      <Output TaskParameter="AuthorName" PropertyName="AuthorName" />
+      <Output TaskParameter="DisplayTitle" PropertyName="DisplayTitle" />
+      <Output TaskParameter="ManifestVersion" PropertyName="ManifestVersion" />
+    </ProcessManifest>
+
+    <PropertyGroup>
+      <Version>$(ManifestVersion)</Version>
+      <FileVersion>$(VersionNormalized)</FileVersion>
+      <AssemblyVersion>$(VersionNormalized)</AssemblyVersion>
+      <AssemblyTitle>$(DisplayTitle)</AssemblyTitle>
+      <Product>$(DisplayTitle)</Product>
+      <Company>$(AuthorName)</Company>
+      <Copyright>$(AuthorName)</Copyright>
+    </PropertyGroup>
+  </Target>
+</Project>

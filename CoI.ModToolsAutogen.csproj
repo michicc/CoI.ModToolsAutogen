@@ -10,7 +10,6 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AccelerateBuildsInVisualStudio>false</AccelerateBuildsInVisualStudio>
-    <Version>2.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,9 +42,15 @@
     <!-- Locate game DLL directory. -->
     <GameDir Condition="'$(GameDir)' == ''">$(COI_ROOT)</GameDir>
     <GameManagedDir Condition="'$(GameManagedDir)' == ''">$(GameDir)\Captain of Industry_Data\Managed</GameManagedDir>
-    <ModFolderName Condition="'$(ModFolderName)' == ''">$(AssemblyName)</ModFolderName>
-    <GameModDir Condition="'$(GameModDir)' == ''">$(AppData)\Captain of Industry\Mods\$(AssemblyName)\</GameModDir>
   </PropertyGroup>
+
+  <!-- Set properties that are extracted from the mod manifest. -->
+  <Target Name="PrepareModProps" DependsOnTargets="ReadJsonVersion">
+    <PropertyGroup>
+      <ModFolderName Condition="'$(ModFolderName)' == ''">$(ModId)</ModFolderName>
+      <GameModDir Condition="'$(GameModDir)' == ''">$(AppData)\Captain of Industry\Mods\$(ModFolderName)\</GameModDir>
+    </PropertyGroup>
+  </Target>
 
   <ItemGroup>
     <Reference Include="@(GameAssembly)">
@@ -55,7 +60,7 @@
   </ItemGroup>
 
   <!-- Create nice error message if a valid install dir was not provided. -->
-  <Target Name="CheckGameDir" BeforeTargets="BeforeBuild">
+  <Target Name="CheckGameDir" BeforeTargets="BeforeBuild" DependsOnTargets="PrepareModProps">
     <PropertyGroup>
       <_InvalidGameDir Condition="!Exists('$(GameManagedDir)')">true</_InvalidGameDir>
     </PropertyGroup>
@@ -78,13 +83,14 @@
   </Target>
 
   <!-- Delete mod files from game dir on Clean. -->
-  <Target Name="CustomClean" BeforeTargets="CoreClean" Condition="'$(Configuration)' == 'Debug' And '$(CopyToModDirectory)' == 'true'">
+  <Target Name="CustomClean" BeforeTargets="CoreClean" DependsOnTargets="PrepareModProps" Condition="'$(Configuration)' == 'Debug' And '$(CopyToModDirectory)' == 'true'">
     <Message Text="Cleaning mod from game dir" Importance="high" />
 
     <ItemGroup>
       <_CustomFilesToDelete Include="$(GameModDir)**\*" />
     </ItemGroup>
     <Delete Files="@(_CustomFilesToDelete)" />
+    <RemoveDir Directories="$(GameModDir)" />
   </Target>
 
   <!-- Collect all output files relative to the OutputPath. -->
@@ -117,7 +123,7 @@
   </Target>
 
   <!-- Delete zip files from publish dir on Clean. -->
-  <Target Name="CustomCleanZip" BeforeTargets="CoreClean" Condition="'$(Configuration)' == 'Release' And '$(BuildZipOnRelease)' == 'true'">
+  <Target Name="CustomCleanZip" BeforeTargets="CoreClean" DependsOnTargets="PrepareModProps" Condition="'$(Configuration)' == 'Release' And '$(BuildZipOnRelease)' == 'true'">
     <PropertyGroup>
       <ModPublishPath Condition="'$(ModPublishPath)' == ''">$(MSBuildProjectDirectory)\$(BaseOutputPath)</ModPublishPath>
     </PropertyGroup>
@@ -129,4 +135,10 @@
     </ItemGroup>
     <Delete Files="@(_OldZips)" />
   </Target>
+  
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties manifest_1json__JsonSchema="https://raw.githubusercontent.com/MaFi-Games/Captain-of-industry-modding/refs/heads/main/src/ExampleMod/manifest.schema.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
