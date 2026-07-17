@@ -1,30 +1,34 @@
-﻿Copyright © 2025, Michael Lutz (michi_cc)
-Portions © MaFi Games – used under the Captain of Industry Modding Policy. Not for standalone use.
+﻿Captain of Industry Open License (COI-Open)
+Version 1.0
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+Copyright (c) 2026, Michael Lutz (michi_cc)
 
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
+This License applies to all files distributed with this notice, including code, artwork,
+graphics, icons, images, models, textures, audio, documentation, configuration files,
+and other materials (the “Work”). The Work may be used only in connection with Captain of
+Industry® (the “Game”), the video game published by MaFi Games (https://coigame.com),
+including its official updates, expansions, and downloadable content, as permitted by
+this License and the Captain of Industry Modding Policy.
 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+Permission is hereby granted, free of charge, to any person obtaining a copy of the Work
+to use, copy, modify, merge, publish, distribute, and create derivative works of the Work
+and modified versions of the Work, subject to the following conditions: 
 
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
+1. The Work, modified versions of the Work, and any material derived from the Work may not
+   be used or distributed in any other game, software product, standalone asset pack, or
+   unrelated project.
 
-4. Redistribution and use must comply with the official Captain of Industry
-   Modding Policy (https://www.captain-of-industry.com/modding-policy).
+2. Any modified version of the Work or material derived from the Work must remain under this License.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+3. Use of the Work must comply with the Captain of Industry Modding Policy. This License does
+   not grant any rights in Captain of Industry®, MaFi Games’ trademarks, game code, game assets,
+   or other intellectual property.
+
+4. The above copyright notice, this permission notice, and credit to the original author must be
+   included in all copies or substantial portions of the Work, including any community maintenance
+   release.
+ 
+THE WORK IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY
+ARISING FROM, OUT OF, OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS IN THE WORK.
